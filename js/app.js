@@ -14,6 +14,21 @@ let courses = JSON.parse(localStorage.getItem('courses')) || [];
 let schedule = [];
 let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || sessionStorage.getItem('isLoggedIn') === 'true';
 
+// Animation Constants with professional timing
+const ANIMATION = {
+    duration: {
+        short: 200,
+        medium: 400,
+        long: 800
+    },
+    easing: {
+        smooth: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+        in: 'cubic-bezier(0.4, 0.0, 1, 1)',
+        out: 'cubic-bezier(0.0, 0.0, 0.2, 1)',
+        bouncy: 'cubic-bezier(0.2, 0.85, 0.4, 1.275)'
+    }
+};
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', () => {
     // Add schedule button icon
@@ -53,96 +68,484 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('deadline').min = today;
 });
 
-// Add animations to form inputs
-function addFormInputAnimations() {
-    const formInputs = document.querySelectorAll('.form-group input, .form-group select');
+// Initialize all animations with performance optimization
+function initializeAnimations() {
+    // Render courses after a slight delay for smoother page load
+    requestAnimationFrame(() => {
+        setTimeout(() => {
+            renderCourses();
+            // Add subtle background animation
+            addOptimizedBackground();
+            // Add floating effects for important elements
+            addSubtleFloatingEffect();
+            // Add ripple effect to buttons with performance optimization
+            addOptimizedRippleEffect();
+        }, 100);
+    });
     
-    formInputs.forEach(input => {
-        // Add focus effect
-        input.addEventListener('focus', () => {
-            input.parentElement.classList.add('focused');
-            input.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
+    // Add event listeners with passive option for better performance
+    document.addEventListener('scroll', throttle(handleScrollAnimations, 100), { passive: true });
+    window.addEventListener('resize', throttle(handleResizeAnimations, 200), { passive: true });
+}
+
+// Throttle function for performance optimization
+function throttle(func, delay) {
+    let lastCall = 0;
+    return function(...args) {
+        const now = new Date().getTime();
+        if (now - lastCall >= delay) {
+            lastCall = now;
+            return func(...args);
+        }
+    };
+}
+
+// Handle scroll-based animations
+function handleScrollAnimations() {
+    // Performance optimized scroll-based animations
+    const visibleElements = document.querySelectorAll('.course-card:not(.animated-in)');
+    
+    visibleElements.forEach(element => {
+        if (isElementInViewport(element)) {
+            element.classList.add('animated-in');
+            // Use Web Animation API for better performance
+            element.animate([
+                { opacity: 0, transform: 'translateY(20px)' },
+                { opacity: 1, transform: 'translateY(0)' }
+            ], {
+                duration: ANIMATION.duration.medium,
+                easing: ANIMATION.easing.out,
+                fill: 'forwards'
+            });
+        }
+    });
+}
+
+// Check if element is in viewport for scroll animations
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.bottom >= 0
+    );
+}
+
+// Handle resize-based layout adjustments with animation
+function handleResizeAnimations() {
+    // Adjust animations based on screen size
+    const isMobile = window.innerWidth <= 768;
+    const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+    
+    // Apply different animation settings based on device
+    document.documentElement.style.setProperty(
+        '--animation-scale', 
+        isMobile ? '0.7' : (isTablet ? '0.85' : '1')
+    );
+}
+
+// Add subtle animations to interactive elements
+function highlightInteractiveElements() {
+    const interactiveElements = document.querySelectorAll('button, .btn, input, select');
+    
+    interactiveElements.forEach(element => {
+        element.addEventListener('focus', () => {
+            element.animate([
+                { boxShadow: 'none' },
+                { boxShadow: '0 0 0 3px rgba(var(--accent-color-rgb), 0.2)' }
+            ], {
+                duration: ANIMATION.duration.short,
+                easing: ANIMATION.easing.out,
+                fill: 'forwards'
+            });
         });
         
-        input.addEventListener('blur', () => {
-            input.parentElement.classList.remove('focused');
-            input.style.borderColor = '';
+        element.addEventListener('blur', () => {
+            element.animate([
+                { boxShadow: '0 0 0 3px rgba(var(--accent-color-rgb), 0.2)' },
+                { boxShadow: 'none' }
+            ], {
+                duration: ANIMATION.duration.short,
+                easing: ANIMATION.easing.out,
+                fill: 'forwards'
+            });
+        });
+    });
+}
+
+// Add optimized background with reduced DOM elements
+function addOptimizedBackground() {
+    const mainElement = document.querySelector('main');
+    if (!mainElement) return;
+    
+    // Create canvas for better performance
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.className = 'background-canvas';
+    bgCanvas.width = mainElement.offsetWidth;
+    bgCanvas.height = mainElement.offsetHeight;
+    
+    // Add canvas styles
+    bgCanvas.style.position = 'absolute';
+    bgCanvas.style.top = '0';
+    bgCanvas.style.left = '0';
+    bgCanvas.style.width = '100%';
+    bgCanvas.style.height = '100%';
+    bgCanvas.style.zIndex = '-1';
+    bgCanvas.style.opacity = '0.3';
+    bgCanvas.style.pointerEvents = 'none';
+    
+    // Prepare the canvas
+    const ctx = bgCanvas.getContext('2d');
+    
+    // Generate dots with canvas for better performance
+    const dots = [];
+    for (let i = 0; i < 12; i++) {
+        dots.push({
+            x: Math.random() * bgCanvas.width,
+            y: Math.random() * bgCanvas.height,
+            radius: Math.random() * 4 + 2,
+            xSpeed: Math.random() * 0.3 - 0.15,
+            ySpeed: Math.random() * 0.3 - 0.15,
+            color: `rgba(var(--primary-color-rgb), ${Math.random() * 0.1 + 0.05})`
+        });
+    }
+    
+    // Draw dots function
+    function drawDots() {
+        ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+        
+        dots.forEach(dot => {
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, dot.radius, 0, Math.PI * 2);
+            ctx.fillStyle = dot.color;
+            ctx.fill();
+            
+            // Move dots
+            dot.x += dot.xSpeed;
+            dot.y += dot.ySpeed;
+            
+            // Bounce off edges
+            if (dot.x < 0 || dot.x > bgCanvas.width) dot.xSpeed *= -1;
+            if (dot.y < 0 || dot.y > bgCanvas.height) dot.ySpeed *= -1;
         });
         
-        // Add label animation
-        const label = input.parentElement.querySelector('label');
-        if (label) {
-            input.addEventListener('focus', () => {
-                label.style.color = getComputedStyle(document.documentElement).getPropertyValue('--accent-color');
+        // Only animate if page is visible for performance
+        if (document.visibilityState === 'visible') {
+            requestAnimationFrame(drawDots);
+        }
+    }
+    
+    // Add canvas to the main element
+    mainElement.style.position = 'relative';
+    mainElement.insertBefore(bgCanvas, mainElement.firstChild);
+    
+    // Start animation
+    drawDots();
+    
+    // Handle visibility change for performance
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            drawDots();
+        }
+    });
+    
+    // Handle resize
+    window.addEventListener('resize', throttle(() => {
+        bgCanvas.width = mainElement.offsetWidth;
+        bgCanvas.height = mainElement.offsetHeight;
+    }, 200), { passive: true });
+}
+
+// Add subtle floating animation to important elements
+function addSubtleFloatingEffect() {
+    // Only animate if the user doesn't prefer reduced motion
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const floatableElements = document.querySelectorAll('.form-container, .course-list, .schedule-container');
+        
+        floatableElements.forEach((element, index) => {
+            // Use Web Animation API for better performance
+            const floatAnimation = [
+                { transform: 'translateY(0px)' },
+                { transform: 'translateY(-5px)' },
+                { transform: 'translateY(0px)' }
+            ];
+            
+            // Animate with proper timing and offset
+            const animation = element.animate(floatAnimation, {
+                duration: 6000,
+                iterations: Infinity,
+                easing: 'ease-in-out',
+                delay: index * 500
             });
             
-            input.addEventListener('blur', () => {
-                label.style.color = '';
-            });
-        }
-    });
-}
-
-// Add hover effects for interactive elements
-function addHoverEffects() {
-    // Add hover effect to the generate schedule button
-    generateScheduleBtn.addEventListener('mouseenter', () => {
-        generateScheduleBtn.querySelector('i').classList.add('fa-spin');
-    });
-    
-    generateScheduleBtn.addEventListener('mouseleave', () => {
-        generateScheduleBtn.querySelector('i').classList.remove('fa-spin');
-    });
-}
-
-// Update authentication UI
-function updateAuthUI() {
-    if (isLoggedIn) {
-        // User is logged in
-        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || 'User';
-        
-        if (authButton) authButton.style.display = 'none';
-        if (userProfile) {
-            userProfile.style.display = 'flex';
-            if (userEmail) userEmail.textContent = email;
-        }
-    } else {
-        // User is not logged in
-        if (authButton) authButton.style.display = 'flex';
-        if (userProfile) userProfile.style.display = 'none';
+            // Performance optimization - reduce animation work when not visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animation.play();
+                    } else {
+                        animation.pause();
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            observer.observe(element);
+        });
     }
 }
 
-// Handle logout with animation
-function handleLogout() {
-    // Add loading animation
-    logoutButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Logging out...';
-    logoutButton.disabled = true;
+// Add optimized ripple effect to buttons with better visual quality
+function addOptimizedRippleEffect() {
+    const buttons = document.querySelectorAll('.btn, button');
     
-    // Simulate logout process
-    setTimeout(() => {
-        // Clear auth data
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userEmail');
-        sessionStorage.removeItem('isLoggedIn');
-        sessionStorage.removeItem('userEmail');
-        
-        // Update state
-        isLoggedIn = false;
-        
-        // Update UI
-        updateAuthUI();
-        
-        // Show notification
-        showNotification('Logged out successfully', 'info');
-        
-        // Reset button
-        logoutButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
-        logoutButton.disabled = false;
-    }, 800);
+    buttons.forEach(button => {
+        button.addEventListener('pointerdown', function(e) {
+            // Prevent ripple on disabled buttons
+            if (this.disabled) return;
+            
+            // Remove any existing ripples
+            const existingRipple = this.querySelector('.ripple-effect');
+            if (existingRipple) {
+                existingRipple.remove();
+            }
+            
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height) * 2;
+            
+            // Calculate precise positioning for natural ripple origin
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Create ripple element
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple-effect');
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+            
+            // Add ripple to button
+            this.appendChild(ripple);
+            
+            // Use Web Animation API instead of CSS transitions for better control
+            ripple.animate([
+                { transform: 'translate(-50%, -50%) scale(0)', opacity: 0.6 },
+                { transform: 'translate(-50%, -50%) scale(1)', opacity: 0 }
+            ], {
+                duration: 700,
+                easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                fill: 'forwards'
+            }).onfinish = () => {
+                ripple.remove();
+            };
+        });
+    });
 }
 
-// Add a new course with animation
+// Show success feedback with optimized confetti animation
+function showSuccessFeedback() {
+    // Only show if not reduced motion mode
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+    
+    const confettiCount = window.innerWidth < 768 ? 50 : 100;
+    const container = document.body;
+    const colors = [
+        getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim(),
+        '#ffffff'
+    ];
+    
+    // Create confetti with canvas for better performance
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '9999';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    container.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    const confetti = [];
+    
+    // Create confetti particles
+    for (let i = 0; i < confettiCount; i++) {
+        confetti.push({
+            x: Math.random() * canvas.width,
+            y: -20,
+            size: Math.random() * 6 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speed: Math.random() * 3 + 2,
+            angle: Math.random() * 2 * Math.PI,
+            rotation: Math.random() * 0.2 - 0.1,
+            rotationAngle: Math.random() * Math.PI,
+            opacity: 1
+        });
+    }
+    
+    let animationFrame;
+    let startTime = null;
+    const duration = 3000; // 3 seconds animation
+    
+    function animateConfetti(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let allOutside = true;
+        
+        for (let i = 0; i < confetti.length; i++) {
+            const c = confetti[i];
+            
+            // Update position with gravity
+            c.y += c.speed;
+            c.x += Math.sin(c.angle) * 2;
+            c.rotationAngle += c.rotation;
+            c.opacity = 1 - (progress / duration);
+            
+            // Draw confetti
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate(c.rotationAngle);
+            ctx.globalAlpha = c.opacity;
+            ctx.fillStyle = c.color;
+            
+            // Draw either rectangle or circle
+            if (i % 2 === 0) {
+                ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+            } else {
+                ctx.beginPath();
+                ctx.arc(0, 0, c.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            
+            // Check if confetti is still on screen
+            if (c.y < canvas.height) {
+                allOutside = false;
+            }
+        }
+        
+        // Continue animation if confetti is still visible and animation time < duration
+        if (!allOutside && progress < duration) {
+            animationFrame = requestAnimationFrame(animateConfetti);
+        } else {
+            canvas.remove();
+        }
+    }
+    
+    // Start animation
+    animationFrame = requestAnimationFrame(animateConfetti);
+    
+    // Cleanup if needed
+    return () => {
+        cancelAnimationFrame(animationFrame);
+        if (canvas.parentNode) {
+            canvas.remove();
+        }
+    };
+}
+
+// Refine notification animation with better visual feedback
+function showNotification(message, type = 'info') {
+    // Get or create notification container
+    let notificationContainer = document.querySelector('.notification-container');
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    
+    // Create icon based on notification type
+    const iconMap = {
+        success: 'check-circle',
+        error: 'exclamation-circle',
+        warning: 'exclamation-triangle',
+        info: 'info-circle'
+    };
+    
+    const icon = iconMap[type] || 'info-circle';
+    
+    // Create notification content
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="fas fa-${icon}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-message">${message}</div>
+        </div>
+    `;
+    
+    // Add to container
+    notificationContainer.appendChild(notification);
+    
+    // Use Web Animation API for better control and performance
+    const animation = notification.animate([
+        { opacity: 0, transform: 'translateX(30px)' },
+        { opacity: 1, transform: 'translateX(0)' }
+    ], {
+        duration: ANIMATION.duration.medium,
+        easing: ANIMATION.easing.out,
+        fill: 'forwards'
+    });
+    
+    // Set up dismissal
+    const dismissTime = type === 'error' ? 8000 : 4000;
+    let dismissTimeout;
+    
+    function startDismissCountdown() {
+        dismissTimeout = setTimeout(() => {
+            dismissNotification();
+        }, dismissTime);
+    }
+    
+    function dismissNotification() {
+        notification.animate([
+            { opacity: 1, transform: 'translateX(0)' },
+            { opacity: 0, transform: 'translateX(30px)' }
+        ], {
+            duration: ANIMATION.duration.medium,
+            easing: ANIMATION.easing.out,
+            fill: 'forwards'
+        }).onfinish = () => {
+            notification.remove();
+        };
+    }
+    
+    // Pause dismissal countdown on hover
+    notification.addEventListener('mouseenter', () => {
+        clearTimeout(dismissTimeout);
+    });
+    
+    // Resume dismissal countdown on mouse leave
+    notification.addEventListener('mouseleave', () => {
+        startDismissCountdown();
+    });
+    
+    // Add click to dismiss
+    notification.addEventListener('click', () => {
+        clearTimeout(dismissTimeout);
+        dismissNotification();
+    });
+    
+    // Start dismissal countdown
+    startDismissCountdown();
+}
+
+// Modify addCourse to use the new showSuccessFeedback
 function addCourse(e) {
     e.preventDefault();
     
@@ -240,9 +643,17 @@ function addCourse(e) {
         // Show success notification
         showNotification('Course added successfully!', 'success');
         
+        // Add professional success feedback
+        showSuccessFeedback();
+        
         // Automatically generate a new schedule with the added course
         if (courses.length > 0) {
             generateScheduleWithAnimation();
+        }
+        
+        // Add confetti effect for successful submission
+        if (isValid) {
+            showConfetti();
         }
     }, 800);
 }
@@ -354,6 +765,8 @@ function renderCourses() {
         const courseElement = document.createElement('div');
         courseElement.className = 'course-card';
         courseElement.dataset.id = course.id;
+        // Add difficulty as a data attribute for CSS styling
+        courseElement.dataset.difficulty = course.difficulty;
         
         // Add animation delay based on index for staggered appearance
         courseElement.style.animationDelay = `${index * 0.1}s`;
@@ -467,6 +880,45 @@ function editCourse(id) {
     
     // Show notification
     showNotification('Editing course: ' + course.name, 'info');
+    
+    // Add pulse animation to highlight the course being edited
+    const courseElement = document.querySelector(`[data-id="${id}"]`);
+    if (courseElement) {
+        courseElement.animate([
+            { boxShadow: 'var(--shadow-sm)', transform: 'scale(1)' },
+            { boxShadow: '0 0 0 4px rgba(var(--accent-color-rgb), 0.4), var(--shadow-md)', transform: 'scale(1.02)' },
+            { boxShadow: 'var(--shadow-sm)', transform: 'scale(1)' }
+        ], {
+            duration: 800,
+            easing: 'ease-in-out'
+        });
+    }
+    
+    // Add scroll animation to form
+    const formContainer = document.querySelector('.form-container');
+    formContainer.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+    });
+    
+    // Highlight form with pulse
+    formContainer.classList.add('highlight-form');
+    
+    // Highlight each field as it's filled
+    setTimeout(() => {
+        const inputs = formContainer.querySelectorAll('input, select');
+        inputs.forEach((input, index) => {
+            setTimeout(() => {
+                input.animate([
+                    { backgroundColor: 'rgba(var(--accent-color-rgb), 0.1)' },
+                    { backgroundColor: 'white' }
+                ], {
+                    duration: 600,
+                    easing: 'ease-out'
+                });
+            }, index * 100);
+        });
+    }, 300);
 }
 
 // Update course function
@@ -586,9 +1038,23 @@ function deleteCourse(id) {
     
     // Add delete animation
     if (courseElement) {
-        courseElement.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-        courseElement.style.opacity = '0';
-        courseElement.style.transform = 'translateY(20px)';
+        // First shake animation
+        courseElement.animate([
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(-5px)' },
+            { transform: 'translateX(5px)' },
+            { transform: 'translateX(-5px)' },
+            { transform: 'translateX(0)' }
+        ], {
+            duration: 300,
+            easing: 'ease-in-out'
+        }).onfinish = () => {
+            // Then fade out and slide
+            courseElement.style.transition = 'all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+            courseElement.style.opacity = '0';
+            courseElement.style.transform = 'translateY(20px) scale(0.8)';
+            courseElement.style.transformOrigin = 'center bottom';
+        };
     }
     
     // Remove after animation completes
@@ -1818,104 +2284,203 @@ function getRandomTime(min, max) {
     return `${hourFormatted}:${minutesFormatted} ${amPm}`;
 }
 
-// Enhanced notification with animations
-function showNotification(message, type = 'info') {
-    // Remove any existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    });
-    
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Add icon based on notification type
-    let icon = 'info-circle';
-    if (type === 'success') icon = 'check-circle';
-    if (type === 'error') icon = 'exclamation-circle';
-    if (type === 'warning') icon = 'exclamation-triangle';
-    
-    notification.innerHTML = `
-        <i class="fas fa-${icon}"></i>
-        <span>${message}</span>
-    `;
-    
-    // Add to body
-    document.body.appendChild(notification);
-    
-    // Show notification with animation
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
-    // Hide and remove after a delay
-    setTimeout(() => {
-        notification.classList.add('slide-out');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
+// Update authentication UI
+function updateAuthUI() {
+    if (isLoggedIn) {
+        // User is logged in
+        const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || 'User';
+        
+        if (authButton) authButton.style.display = 'none';
+        if (userProfile) {
+            userProfile.style.display = 'flex';
+            if (userEmail) userEmail.textContent = email;
+        }
+    } else {
+        // User is not logged in
+        if (authButton) authButton.style.display = 'flex';
+        if (userProfile) userProfile.style.display = 'none';
+    }
 }
 
-// Add notification styles to head
-(function addNotificationStyles() {
-    const style = document.createElement('style');
-    style.textContent = `
-        .notification {
-            display: flex;
-            align-items: center;
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 10px;
-            color: white;
-            font-weight: 500;
-            max-width: 350px;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateX(30px);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+// Handle logout with animation
+function handleLogout() {
+    // Add loading animation
+    logoutButton.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Logging out...';
+    logoutButton.disabled = true;
+    
+    // Simulate logout process
+    setTimeout(() => {
+        // Clear auth data
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userEmail');
+        sessionStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('userEmail');
+        
+        // Update state
+        isLoggedIn = false;
+        
+        // Update UI
+        updateAuthUI();
+        
+        // Show notification
+        showNotification('Logged out successfully', 'info');
+        
+        // Reset button
+        logoutButton.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+        logoutButton.disabled = false;
+    }, 800);
+}
+
+// Add user interaction detector
+document.addEventListener('click', function() {
+    document.documentElement.classList.add('user-interacted');
+});
+
+// Optimize the showConfetti function for better performance
+function showConfetti() {
+    // Detect if user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return; // Skip animation for users who prefer reduced motion
+    }
+    
+    // Scale confetti count based on device capability
+    const isMobile = window.innerWidth < 768;
+    const confettiCount = isMobile ? 50 : 100;
+    const container = document.querySelector('body');
+    
+    // Use CSS variables for consistent colors
+    const confettiColors = [
+        getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim(),
+        getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim(),
+        '#ffffff'
+    ];
+    
+    // Create canvas for better performance
+    const canvas = document.createElement('canvas');
+    canvas.className = 'confetti-canvas';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = 'fixed';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.pointerEvents = 'none';
+    canvas.style.zIndex = '9999';
+    
+    container.appendChild(canvas);
+    
+    const ctx = canvas.getContext('2d');
+    const confetti = [];
+    
+    // Generate confetti particles
+    for (let i = 0; i < confettiCount; i++) {
+        const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        const size = isMobile ? Math.random() * 6 + 3 : Math.random() * 8 + 4;
+        
+        confetti.push({
+            x: Math.random() * canvas.width,
+            y: -30,
+            size: size,
+            color: color,
+            speed: Math.random() * 2 + 1,
+            angle: Math.random() * Math.PI / 4 - Math.PI / 8,
+            rotation: Math.random() * 0.2 - 0.1,
+            rotationAngle: Math.random() * Math.PI,
+            opacity: 1
+        });
+    }
+    
+    // Animation variables
+    let animationFrame;
+    let startTime = null;
+    const duration = 3500; // Animation duration in ms
+    
+    // Animation function
+    function animateConfetti(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let stillAnimating = false;
+        
+        // Update and draw each confetti
+        for (let i = 0; i < confetti.length; i++) {
+            const c = confetti[i];
+            
+            // Calculate fade out based on progress
+            c.opacity = Math.max(0, 1 - (progress / duration));
+            
+            // Update position with gravity and wind effect
+            c.y += c.speed + Math.sin(progress / 200) * 0.2;
+            c.x += Math.sin(c.angle) + Math.sin(progress / 400) * 0.5;
+            c.rotationAngle += c.rotation;
+            
+            // Skip drawing if outside viewport or fully transparent
+            if (c.y > canvas.height || c.opacity <= 0) continue;
+            
+            stillAnimating = true;
+            
+            // Draw confetti
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate(c.rotationAngle);
+            ctx.globalAlpha = c.opacity;
+            
+            // Alternate between rectangles, circles and custom shapes
+            if (i % 3 === 0) {
+                // Rectangle
+                ctx.fillStyle = c.color;
+                ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size);
+            } else if (i % 3 === 1) {
+                // Circle
+                ctx.beginPath();
+                ctx.fillStyle = c.color;
+                ctx.arc(0, 0, c.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Custom shape (triangle)
+                ctx.beginPath();
+                ctx.fillStyle = c.color;
+                ctx.moveTo(0, -c.size / 2);
+                ctx.lineTo(c.size / 2, c.size / 2);
+                ctx.lineTo(-c.size / 2, c.size / 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            ctx.restore();
         }
         
-        .notification i {
-            margin-right: 12px;
-            font-size: 1.2rem;
+        // Continue animation if particles are still visible and within duration
+        if (stillAnimating && progress < duration) {
+            animationFrame = requestAnimationFrame(animateConfetti);
+        } else {
+            // Clean up when done
+            canvas.remove();
         }
-        
-        .notification.show {
-            opacity: 1;
-            transform: translateX(0);
+    }
+    
+    // Start animation
+    animationFrame = requestAnimationFrame(animateConfetti);
+    
+    // Handle page visibility changes
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            cancelAnimationFrame(animationFrame);
+        } else if (startTime && Date.now() - startTime < duration) {
+            animationFrame = requestAnimationFrame(animateConfetti);
         }
-        
-        .notification.slide-out {
-            transform: translateX(100px);
-            opacity: 0;
+    });
+    
+    // Clean up on window resize
+    window.addEventListener('resize', function() {
+        cancelAnimationFrame(animationFrame);
+        if (canvas.parentNode) {
+            canvas.remove();
         }
-        
-        .notification.success {
-            background: linear-gradient(45deg, #28a745, #20c997);
-            border-left: 5px solid #1e7e34;
-        }
-        
-        .notification.error {
-            background: linear-gradient(45deg, #dc3545, #f86384);
-            border-left: 5px solid #bd2130;
-        }
-        
-        .notification.warning {
-            background: linear-gradient(45deg, #ffc107, #ffcd39);
-            color: #333;
-            border-left: 5px solid #d39e00;
-        }
-        
-        .notification.info {
-            background: linear-gradient(45deg, var(--accent-color), #63c5da);
-            border-left: 5px solid var(--secondary-color);
-        }
-    `;
-    document.head.appendChild(style);
-})(); 
+    }, { once: true });
+} 
