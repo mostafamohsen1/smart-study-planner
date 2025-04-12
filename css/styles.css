@@ -27,6 +27,15 @@
     --success-color-rgb: 40, 167, 69;
     --warning-color-rgb: 255, 193, 7;
     --danger-color-rgb: 220, 53, 69;
+    
+    /* Animation timing variables for consistency */
+    --anim-duration-fast: 0.2s;
+    --anim-duration-medium: 0.4s;
+    --anim-duration-slow: 0.8s;
+    --anim-ease-smooth: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --anim-ease-in: cubic-bezier(0.4, 0.0, 1, 1);
+    --anim-ease-out: cubic-bezier(0.0, 0.0, 0.2, 1);
+    --anim-ease-bouncy: cubic-bezier(0.2, 0.85, 0.4, 1.275);
 }
 
 body {
@@ -35,7 +44,7 @@ body {
     color: var(--text-color);
     background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
     min-height: 100vh;
-    animation: fadeIn 0.8s ease-out;
+    animation: fadeIn var(--anim-duration-medium) var(--anim-ease-out);
     background-attachment: fixed;
 }
 
@@ -61,10 +70,11 @@ header::after {
     position: absolute;
     bottom: -2px;
     left: 0;
-    width: 100px;
+    width: 80px;
     height: 2px;
     background-color: var(--accent-color);
-    animation: headerBorderSlide 3s ease infinite;
+    animation: headerBorderSlide 6s var(--anim-ease-smooth) infinite;
+    transform-origin: left center;
 }
 
 .header-content {
@@ -82,8 +92,9 @@ header h1 {
 
 header h1 i {
     color: var(--accent-color);
-    animation: bookSway 3s ease-in-out infinite;
+    animation: bookSway 4s var(--anim-ease-smooth) infinite;
     display: inline-block;
+    transform-origin: bottom center;
 }
 
 header p {
@@ -202,13 +213,13 @@ main {
     overflow: hidden;
     margin-bottom: 20px;
     transition: all 0.3s ease;
-    animation: form-slide-in 0.5s ease-out forwards;
+    animation: form-slide-in var(--anim-duration-medium) var(--anim-ease-out) forwards;
 }
 
 @keyframes form-slide-in {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(15px);
     }
     to {
         opacity: 1;
@@ -310,7 +321,9 @@ main {
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: transform var(--anim-duration-fast) var(--anim-ease-smooth),
+                box-shadow var(--anim-duration-fast) var(--anim-ease-smooth),
+                background-position var(--anim-duration-medium) var(--anim-ease-smooth);
     position: relative;
     overflow: hidden;
 }
@@ -325,7 +338,7 @@ main {
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     transform: translate(-50%, -50%);
-    transition: width 0.5s, height 0.5s;
+    transition: left 0.7s;
 }
 
 .btn:active::after {
@@ -334,8 +347,13 @@ main {
 }
 
 .btn:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+    transition: transform 0.1s var(--anim-ease-in);
 }
 
 .btn-primary {
@@ -361,8 +379,8 @@ main {
 /* Course list styles */
 .course-list {
     margin-bottom: 20px;
-    animation: form-slide-in 0.5s ease-out forwards;
-    animation-delay: 0.2s;
+    animation: form-slide-in var(--anim-duration-medium) var(--anim-ease-out) forwards;
+    animation-delay: 0.1s;
     opacity: 0;
 }
 
@@ -395,18 +413,144 @@ main {
     padding: 20px;
     box-shadow: var(--shadow-sm);
     position: relative;
-    transition: all 0.3s ease;
+    transition: transform var(--anim-duration-medium) var(--anim-ease-smooth),
+                box-shadow var(--anim-duration-medium) var(--anim-ease-smooth),
+                opacity var(--anim-duration-medium) var(--anim-ease-smooth);
     border-left: 4px solid var(--primary-color);
     margin-bottom: 0;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    animation: card-pop 0.5s forwards;
-    transform: scale(0.96);
+    animation: card-pop var(--anim-duration-slow) forwards;
+    transform: scale(0.98);
     opacity: 0;
+    overflow: hidden;
 }
 
+/* Difficulty-based styling - Easy */
+.course-card[data-difficulty="1"] {
+    border-left-color: var(--success-color);
+    background: linear-gradient(to right bottom, #ffffff, #f0f9f2);
+}
+
+.course-card[data-difficulty="1"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent rgba(var(--success-color-rgb), 0.2) transparent transparent;
+}
+
+.course-card[data-difficulty="1"] .course-header {
+    border-bottom-color: rgba(var(--success-color-rgb), 0.2);
+}
+
+.course-card[data-difficulty="1"]:hover {
+    box-shadow: 0 10px 25px rgba(var(--success-color-rgb), 0.15);
+}
+
+/* Difficulty-based styling - Medium */
+.course-card[data-difficulty="2"] {
+    border-left-color: var(--warning-color);
+    background: linear-gradient(to right bottom, #ffffff, #fff9e6);
+}
+
+.course-card[data-difficulty="2"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent rgba(var(--warning-color-rgb), 0.2) transparent transparent;
+}
+
+.course-card[data-difficulty="2"] .course-header {
+    border-bottom-color: rgba(var(--warning-color-rgb), 0.2);
+}
+
+.course-card[data-difficulty="2"]:hover {
+    box-shadow: 0 10px 25px rgba(var(--warning-color-rgb), 0.15);
+}
+
+/* Difficulty-based styling - Hard */
+.course-card[data-difficulty="3"] {
+    border-left-color: var(--danger-color);
+    background: linear-gradient(to right bottom, #ffffff, #fdf0f0);
+}
+
+.course-card[data-difficulty="3"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 30px 30px 0;
+    border-color: transparent rgba(var(--danger-color-rgb), 0.2) transparent transparent;
+}
+
+.course-card[data-difficulty="3"] .course-header {
+    border-bottom-color: rgba(var(--danger-color-rgb), 0.2);
+}
+
+.course-card[data-difficulty="3"]:hover {
+    box-shadow: 0 10px 25px rgba(var(--danger-color-rgb), 0.15);
+}
+
+/* Course card hover effects */
+.course-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+    z-index: 10;
+}
+
+.course-card:hover::after {
+    opacity: 1;
+}
+
+.course-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: linear-gradient(
+        to bottom, 
+        rgba(255, 255, 255, 0.1) 0%, 
+        rgba(255, 255, 255, 0) 40%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+/* Animated icon in course header */
+.course-card:hover .course-header h3::before {
+    width: 100%;
+}
+
+.course-card .course-header h3::before {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
+    transition: width 0.4s ease;
+}
+
+/* Course card header with animation */
 .course-card .course-header {
     display: flex;
     justify-content: space-between;
@@ -414,29 +558,19 @@ main {
     margin-bottom: 12px;
     border-bottom: 1px solid #efefef;
     padding-bottom: 12px;
+    position: relative;
 }
 
+/* Animated badges */
 .course-card .course-badges {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
+    transition: transform 0.3s ease;
 }
 
-.course-card .course-body {
-    flex: 1;
-}
-
-.course-card .course-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #efefef;
-}
-
-.course-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
+.course-card:hover .course-badges {
+    transform: translateY(-2px);
 }
 
 .course-card h3 {
@@ -446,40 +580,39 @@ main {
     font-weight: 600;
     line-height: 1.3;
     max-width: 70%;
+    position: relative;
+    transition: transform 0.3s ease;
 }
 
-.course-card p {
-    margin: 10px 0;
-    display: flex;
-    align-items: center;
-    color: #555;
-    font-size: 0.95rem;
+.course-card:hover h3 {
+    transform: translateY(-2px);
 }
 
+/* Animated content scale */
+.course-card .course-body {
+    flex: 1;
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover .course-body {
+    transform: scale(1.01);
+}
+
+/* Animated icons in course info */
 .course-card p i {
     color: var(--accent-color);
     margin-right: 8px;
     width: 16px;
     display: inline-block;
     text-align: center;
+    transition: transform 0.3s ease;
 }
 
-.course-card .deadline {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+.course-card:hover p i {
+    transform: scale(1.2);
 }
 
-.course-card .deadline i {
-    margin-right: 8px;
-}
-
-.course-card .deadline-date {
-    color: var(--text-color);
-    font-weight: 500;
-    margin-left: 24px;
-}
-
+/* Animated deadline countdown */
 .course-card .countdown {
     display: inline-block;
     padding: 3px 8px;
@@ -488,54 +621,32 @@ main {
     margin-top: 5px;
     margin-left: 24px;
     font-weight: 500;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.course-card .countdown.urgent {
-    background-color: rgba(var(--danger-color-rgb, 220, 53, 69), 0.1);
-    color: var(--danger-color);
+.course-card:hover .countdown {
+    transform: scale(1.05);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-.course-card .countdown.soon {
-    background-color: rgba(var(--warning-color-rgb, 255, 193, 7), 0.1);
-    color: #d39e00;
+.course-card .countdown::before {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.7s;
 }
 
-.course-card .countdown.plenty {
-    background-color: rgba(var(--success-color-rgb, 40, 167, 69), 0.1);
-    color: var(--success-color);
+.course-card:hover .countdown::before {
+    left: 100%;
 }
 
-.course-card .difficulty {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.course-card .difficulty-1 {
-    background-color: rgba(var(--success-color-rgb, 40, 167, 69), 0.1);
-    color: var(--success-color);
-}
-
-.course-card .difficulty-2 {
-    background-color: rgba(var(--warning-color-rgb, 255, 193, 7), 0.1);
-    color: #d39e00;
-}
-
-.course-card .difficulty-3 {
-    background-color: rgba(var(--danger-color-rgb, 220, 53, 69), 0.1);
-    color: var(--danger-color);
-}
-
-.course-card .topics {
-    margin-top: 12px;
-}
-
-.course-card .topics p {
-    margin-bottom: 8px;
-}
-
+/* Animated topic tags */
 .topic-tag {
     background-color: rgba(var(--primary-color-rgb, 74, 111, 165), 0.1);
     color: var(--primary-color);
@@ -545,27 +656,50 @@ main {
     margin-right: 5px;
     margin-bottom: 5px;
     display: inline-block;
-    transition: all 0.3s;
-    animation: tag-pop 0.4s forwards;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: tag-pop 0.5s var(--anim-ease-bouncy) forwards;
+    animation-fill-mode: both;
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(8px) scale(0.9);
+    position: relative;
+    overflow: hidden;
 }
 
-@keyframes tag-pop {
-    0% {
-        opacity: 0;
-        transform: translateY(5px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.topic-tag::after {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.topic-tag:hover::after {
+    left: 100%;
 }
 
 .topic-tag:hover {
     background-color: var(--primary-color);
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 3px 10px rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* Enhanced action buttons */
+.course-card .course-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #efefef;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.course-card:hover .course-actions {
+    opacity: 1;
 }
 
 .course-card .delete-btn {
@@ -579,47 +713,16 @@ main {
     background-color: rgba(var(--danger-color-rgb, 220, 53, 69), 0.1);
     color: var(--danger-color);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all var(--anim-duration-medium) var(--anim-ease-smooth);
     font-size: 0.9rem;
+    transform: scale(1);
 }
 
 .course-card .delete-btn:hover {
     background-color: var(--danger-color);
     color: white;
-}
-
-.course-card .progress-container {
-    height: 6px;
-    background-color: #e9ecef;
-    border-radius: 3px;
-    margin-top: 15px;
-    position: relative;
-    overflow: hidden;
-}
-
-.course-card .progress-bar {
-    height: 100%;
-    border-radius: 3px;
-}
-
-.course-card .progress-text {
-    position: absolute;
-    right: 0;
-    top: -18px;
-    font-size: 0.8rem;
-    color: #666;
-}
-
-.course-card .progress-1 {
-    background: linear-gradient(90deg, #28a745, #5cb85c);
-}
-
-.course-card .progress-2 {
-    background: linear-gradient(90deg, #ffc107, #ffdb58);
-}
-
-.course-card .progress-3 {
-    background: linear-gradient(90deg, #dc3545, #f86384);
+    transform: rotate(5deg) scale(1.08);
+    box-shadow: 0 3px 8px rgba(var(--danger-color-rgb), 0.3);
 }
 
 .course-card .edit-btn {
@@ -631,33 +734,202 @@ main {
     background-color: rgba(var(--accent-color-rgb, 25, 160, 201), 0.1);
     color: var(--accent-color);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all var(--anim-duration-medium) var(--anim-ease-smooth);
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 .course-card .edit-btn i {
     margin-right: 5px;
+    transition: transform 0.3s ease;
 }
 
 .course-card .edit-btn:hover {
     background-color: var(--accent-color);
     color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(var(--accent-color-rgb), 0.3);
 }
 
-/* Enhance animation for courses */
+.course-card .edit-btn:hover i {
+    transform: rotate(15deg);
+}
+
+/* Enhanced progress bar animation */
+.course-card .progress-container {
+    height: 6px;
+    background-color: #e9ecef;
+    border-radius: 3px;
+    margin-top: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+
+.course-card:hover .progress-container {
+    height: 8px;
+}
+
+.course-card .progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s var(--anim-ease-out);
+    position: relative;
+    background-size: 20px 20px;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    animation: progress-bar-stripes 1.5s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 20px 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+/* Customize progress bars based on difficulty */
+.course-card[data-difficulty="1"] .progress-bar {
+    background: linear-gradient(90deg, #28a745, #5cb85c);
+}
+
+.course-card[data-difficulty="2"] .progress-bar {
+    background: linear-gradient(90deg, #ffc107, #ffdb58);
+}
+
+.course-card[data-difficulty="3"] .progress-bar {
+    background: linear-gradient(90deg, #dc3545, #f86384);
+}
+
+/* Enhanced card pop animation */
 @keyframes card-pop {
     0% {
         opacity: 0;
-        transform: scale(0.96) translateY(10px);
+        transform: translateY(15px) scale(0.98);
     }
     70% {
         opacity: 1;
-        transform: scale(1.02) translateY(-2px);
+        transform: translateY(-3px) scale(1.01);
     }
     100% {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Enhanced quick tips section */
+.quick-tips {
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: var(--border-radius);
+    padding: 15px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--accent-color);
+    animation: tips-fade-in var(--anim-duration-slow) var(--anim-ease-out) forwards;
+    backdrop-filter: blur(4px);
+    grid-column: 1 / -1;
+    transition: transform var(--anim-duration-medium) var(--anim-ease-smooth),
+                box-shadow var(--anim-duration-medium) var(--anim-ease-smooth);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-tips::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at right bottom, rgba(var(--accent-color-rgb), 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+}
+
+.quick-tips:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.quick-tips:hover::after {
+    opacity: 1;
+}
+
+.quick-tips:hover h3 i {
+    transform: rotate(15deg) scale(1.2);
+    color: var(--accent-color);
+}
+
+.quick-tips h3 {
+    display: flex;
+    align-items: center;
+    color: var(--primary-dark);
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+}
+
+.quick-tips h3 i {
+    margin-right: 10px;
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+}
+
+.quick-tips ul {
+    list-style-type: none;
+    padding-left: 15px;
+}
+
+.quick-tips li {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 8px;
+    transition: transform 0.3s ease;
+}
+
+.quick-tips li:hover {
+    transform: translateX(5px);
+}
+
+.quick-tips li::before {
+    content: '\f0eb';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: var(--accent-color);
+    position: absolute;
+    left: 0;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.quick-tips li:hover::before {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Enhanced tag-pop animation */
+@keyframes tag-pop {
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.9);
+    }
+    70% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.03);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -678,57 +950,6 @@ main {
     font-size: 3rem;
     margin-bottom: 15px;
     color: #ccc;
-}
-
-/* Quick tips section */
-.quick-tips {
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: var(--border-radius);
-    padding: 15px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
-    border-left: 4px solid var(--accent-color);
-    animation: tips-fade-in 0.8s forwards;
-    backdrop-filter: blur(4px);
-    grid-column: 1 / -1;
-}
-
-@keyframes tips-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.quick-tips h3 {
-    color: var(--accent-color);
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-}
-
-.quick-tips h3 i {
-    margin-right: 8px;
-}
-
-.quick-tips ul {
-    margin: 0;
-    padding-left: 25px;
-}
-
-.quick-tips li {
-    margin-bottom: 5px;
-    font-size: 0.95rem;
-    color: #555;
-}
-
-.quick-tips li:last-child {
-    margin-bottom: 0;
 }
 
 /* Footer styles */
@@ -833,7 +1054,7 @@ footer {
 @keyframes slideUpFade {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(15px);
     }
     to {
         opacity: 1;
@@ -846,7 +1067,7 @@ footer {
         transform: scale(1);
     }
     50% {
-        transform: scale(1.1);
+        transform: scale(1.05);
     }
     100% {
         transform: scale(1);
@@ -867,16 +1088,24 @@ footer {
 
 @keyframes headerBorderSlide {
     0% {
-        width: 0;
+        transform: scaleX(0.1);
+        left: 0;
+    }
+    30% {
+        transform: scaleX(1);
         left: 0;
     }
     50% {
-        width: 100%;
-        left: 0;
+        transform: scaleX(0.7);
+        left: 30%;
+    }
+    70% {
+        transform: scaleX(0.3);
+        left: 70%;
     }
     100% {
-        width: 0;
-        left: 100%;
+        transform: scaleX(0.1);
+        left: 95%;
     }
 }
 
@@ -885,10 +1114,10 @@ footer {
         transform: rotate(0deg);
     }
     25% {
-        transform: rotate(-5deg);
+        transform: rotate(-3deg);
     }
     75% {
-        transform: rotate(5deg);
+        transform: rotate(3deg);
     }
     100% {
         transform: rotate(0deg);
@@ -897,8 +1126,8 @@ footer {
 
 .schedule-container {
     margin-top: 30px;
-    animation: form-slide-in 0.5s ease-out forwards;
-    animation-delay: 0.4s;
+    animation: form-slide-in var(--anim-duration-medium) var(--anim-ease-out) forwards;
+    animation-delay: 0.2s;
     opacity: 0;
 }
 
@@ -1023,4 +1252,107 @@ footer {
 
 .btn i {
     margin-right: 8px;
+}
+
+/* Enhance difficulty level badges */
+.course-card .difficulty {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.course-card .difficulty::after {
+    content: '';
+    position: absolute;
+    left: -100%;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.7s;
+}
+
+.course-card:hover .difficulty::after {
+    left: 100%;
+}
+
+.course-card .difficulty-1 {
+    background-color: rgba(var(--success-color-rgb), 0.1);
+    color: var(--success-color);
+    border: 1px solid rgba(var(--success-color-rgb), 0.2);
+}
+
+.course-card .difficulty-2 {
+    background-color: rgba(var(--warning-color-rgb), 0.1);
+    color: #d39e00;
+    border: 1px solid rgba(var(--warning-color-rgb), 0.2);
+}
+
+.course-card .difficulty-3 {
+    background-color: rgba(var(--danger-color-rgb), 0.1);
+    color: var(--danger-color);
+    border: 1px solid rgba(var(--danger-color-rgb), 0.2);
+}
+
+/* Enhanced headers based on difficulty */
+.course-card[data-difficulty="1"] h3 {
+    color: var(--success-color);
+}
+
+.course-card[data-difficulty="2"] h3 {
+    color: #d39e00;
+}
+
+.course-card[data-difficulty="3"] h3 {
+    color: var(--danger-color);
+}
+
+/* Add will-change hints for better performance */
+.course-card, 
+.form-container, 
+.btn,
+.quick-tips {
+    will-change: transform, opacity;
+}
+
+/* Refined notification animation */
+@keyframes notificationSlide {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Mobile optimizations for animations */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+/* For low-powered devices, reduce animations */
+@media (max-width: 480px) {
+    .course-card {
+        transition: transform var(--anim-duration-fast) var(--anim-ease-smooth),
+                    box-shadow var(--anim-duration-fast) var(--anim-ease-smooth);
+        animation-duration: 0.3s;
+    }
+    
+    .course-card .progress-bar {
+        animation: none;
+    }
+    
+    .topic-tag {
+        animation-duration: 0.3s;
+    }
 } 
