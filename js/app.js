@@ -482,92 +482,43 @@ function showSuccessFeedback() {
 
 // Refine notification animation with better visual feedback
 function showNotification(message, type = 'info') {
-    // Get or create notification container
-    let notificationContainer = document.querySelector('.notification-container');
-    if (!notificationContainer) {
-        notificationContainer = document.createElement('div');
-        notificationContainer.className = 'notification-container';
-        document.body.appendChild(notificationContainer);
-    }
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    });
     
     // Create notification element
     const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
+    notification.className = `notification ${type}`;
     
-    // Create icon based on notification type
-    const iconMap = {
-        success: 'check-circle',
-        error: 'exclamation-circle',
-        warning: 'exclamation-triangle',
-        info: 'info-circle'
-    };
+    // Add icon based on notification type
+    let icon = 'info-circle';
+    if (type === 'success') icon = 'check-circle';
+    if (type === 'error') icon = 'exclamation-circle';
+    if (type === 'warning') icon = 'exclamation-triangle';
     
-    const icon = iconMap[type] || 'info-circle';
-    
-    // Create notification content
     notification.innerHTML = `
-        <div class="notification-icon">
-            <i class="fas fa-${icon}"></i>
-        </div>
-        <div class="notification-content">
-            <div class="notification-message">${message}</div>
-        </div>
+        <i class="fas fa-${icon}"></i>
+        <span>${message}</span>
     `;
     
-    // Add to container
-    notificationContainer.appendChild(notification);
+    // Add to body
+    document.body.appendChild(notification);
     
-    // Use Web Animation API for better control and performance
-    const animation = notification.animate([
-        { opacity: 0, transform: 'translateX(30px)' },
-        { opacity: 1, transform: 'translateX(0)' }
-    ], {
-        duration: ANIMATION.duration.medium,
-        easing: ANIMATION.easing.out,
-        fill: 'forwards'
-    });
+    // Show notification with animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
     
-    // Set up dismissal
-    const dismissTime = type === 'error' ? 8000 : 4000;
-    let dismissTimeout;
-    
-    function startDismissCountdown() {
-        dismissTimeout = setTimeout(() => {
-            dismissNotification();
-        }, dismissTime);
-    }
-    
-    function dismissNotification() {
-        notification.animate([
-            { opacity: 1, transform: 'translateX(0)' },
-            { opacity: 0, transform: 'translateX(30px)' }
-        ], {
-            duration: ANIMATION.duration.medium,
-            easing: ANIMATION.easing.out,
-            fill: 'forwards'
-        }).onfinish = () => {
+    // Hide and remove after a delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => {
             notification.remove();
-        };
-    }
-    
-    // Pause dismissal countdown on hover
-    notification.addEventListener('mouseenter', () => {
-        clearTimeout(dismissTimeout);
-    });
-    
-    // Resume dismissal countdown on mouse leave
-    notification.addEventListener('mouseleave', () => {
-        startDismissCountdown();
-    });
-    
-    // Add click to dismiss
-    notification.addEventListener('click', () => {
-        clearTimeout(dismissTimeout);
-        dismissNotification();
-    });
-    
-    // Start dismissal countdown
-    startDismissCountdown();
+        }, 300);
+    }, 3000);
     
     // Add ARIA attributes for screen readers
     notification.setAttribute('role', 'alert');
