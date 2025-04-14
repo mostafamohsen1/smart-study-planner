@@ -1331,6 +1331,56 @@ footer {
     }
 }
 
+/* Notification styles to match login page */
+.notification {
+    display: flex;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+    max-width: 350px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.notification i {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    border-left: 5px solid #1e7e34;
+}
+
+.notification.error {
+    background: linear-gradient(45deg, #dc3545, #f86384);
+    border-left: 5px solid #bd2130;
+}
+
+.notification.warning {
+    background: linear-gradient(45deg, #ffc107, #ffcd39);
+    color: #333;
+    border-left: 5px solid #d39e00;
+}
+
+.notification.info {
+    background: linear-gradient(45deg, var(--accent-color), #63c5da);
+    border-left: 5px solid var(--secondary-color);
+}
+
 /* Mobile optimizations for animations */
 @media (prefers-reduced-motion: reduce) {
     * {
